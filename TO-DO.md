@@ -1,0 +1,15 @@
+stats
+perks
+sockets
+breakerType
+investmentStats
+equippingBlock.equipmentSlotTypeHash
+itemSubType
+itemCategoryHashes
+ammoType
+equipmentSlotTypeHash
+inventory.tierTypeName
+itemTypeAndTierDisplayName
+flavorText
+itemTypeDisplayName
+tooltipNotifications.0.displayString
