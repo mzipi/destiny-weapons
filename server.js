@@ -34,6 +34,8 @@ const findAmmoTypeNameFromNodeDefinition = (ammoTypeId, data) => {
 
 app.get('/armas', async (req, res) => {
     const searchTerm = req.query.search ? req.query.search.toLowerCase() : '';
+    const page = parseInt(req.query.page) || 1;
+    const resultsPerPage = 1; // Mostrar 1 arma por página
 
     const url = 'https://www.bungie.net/common/destiny2_content/json/es-mx/aggregate-180d19ec-32f8-4b44-8b2a-fcc5163f4db0.json';
 
@@ -42,12 +44,19 @@ app.get('/armas', async (req, res) => {
         const data = await response.json();
 
         if (data && data.DestinyInventoryItemDefinition) {
-
             const armas = Object.values(data.DestinyInventoryItemDefinition)
                 .filter(item => item.itemType === 3)
                 .filter(arma => arma.displayProperties.name.toLowerCase().includes(searchTerm));
 
-            const armasConSockets = armas.map(arma => {
+            // Paginación
+            const totalResults = armas.length;
+            const totalPages = Math.ceil(totalResults / resultsPerPage);
+            const startIndex = (page - 1) * resultsPerPage;
+            const endIndex = startIndex + resultsPerPage;
+
+            const armasPagina = armas.slice(startIndex, endIndex);
+
+            const armasConSockets = armasPagina.map(arma => {
                 const sockets = [];
 
                 const defaultDamageTypeHash = arma.defaultDamageTypeHash;
@@ -55,8 +64,8 @@ app.get('/armas', async (req, res) => {
                 const damageTypeIcon = damageType ? `https://www.bungie.net${damageType.displayProperties.icon}` : null;
                 const itemSubType = arma.itemTypeDisplayName || "Desconocido";
                 const equippingBlock = arma.equippingBlock || {};
-                const ammoTypeId = equippingBlock.ammoType || 4; // Usamos "Desconocida" por defecto si no hay valor
-                const ammoTypeName = findAmmoTypeNameFromNodeDefinition(ammoTypeId, data); // Buscar nombre de ammoType
+                const ammoTypeId = equippingBlock.ammoType || 4;
+                const ammoTypeName = findAmmoTypeNameFromNodeDefinition(ammoTypeId, data);
                 const equipmentSlotTypeHash = arma.equippingBlock?.equipmentSlotTypeHash;
                 const equipmentSlot = equipmentSlotTypeHash ? data.DestinyEquipmentSlotDefinition[equipmentSlotTypeHash] : null;
                 const equipmentSlotName = equipmentSlot ? equipmentSlot.displayProperties.name : "Desconocido";
@@ -130,7 +139,11 @@ app.get('/armas', async (req, res) => {
                 };
             });
 
-            res.json(armasConSockets);
+            res.json({
+                armas: armasConSockets,
+                totalPages,
+                currentPage: page
+            });
         } else {
             res.status(404).json({ error: 'No se encontraron armas' });
         }
