@@ -36,29 +36,49 @@ async function fetchArmas(searchTerm = '') {
                 <h4>Perks:</h4>
                 <div class="sockets-container">
                     ${arma.sockets && arma.sockets.length > 0
-                        ? arma.sockets.map(socket => `
-                            <div class="socket">
-                                <strong>${socket.itemTypeDisplayName}</strong>
-                                <ul>
-                                    ${socket.perks.length > 0
-                                        ? socket.perks.map(perk => `
-                                            <li>
-                                                ${perk.icon ? `<img src="https://www.bungie.net${perk.icon}" alt="${perk.name}" width="30">` : ''}
-                                                ${perk.name}
-                                            </li>
-                                        `).join('')
-                                        : '<li>No hay perks disponibles</li>'
-                                    }
-                                </ul>
-                            </div>
-                        `).join('')
-                        : '<p>No tiene sockets con perks aleatorios</p>'
-                    }
+                    ? arma.sockets.map((socket, index) => {
+                        return `
+                                <div class="socket">
+                                    <strong>Socket ${index + 1} - ${socket.itemTypeDisplayName || "Desconocido"}</strong>
+                                    <ul>
+                                        ${socket.perks.length > 0
+                                ? socket.perks.map(perk => `
+                                                <li>
+                                                    ${perk.icon ? `<img src="https://www.bungie.net${perk.icon}" alt="${perk.name}" width="30">` : ''}
+                                                    ${perk.name}
+                                                </li>
+                                            `).join('')
+                                : '<li>No hay perks disponibles</li>'
+                            }
+                                    </ul>
+                                </div>
+                            `;
+                    }).join('')
+                    : '<p>No tiene sockets con perks aleatorios</p>'
+                }
                 </div>
             `;
             container.appendChild(div);
+
+            // Mostrar datos en la consola
+            console.log('Nombre:', arma.displayProperties.name);
+            console.log('Icono de daño:', arma.damageTypeIcon);
+            console.log('Tipo de objeto:', arma.itemSubType);
+            console.log('Tipo de munición:', arma.ammoTypeName);
+            console.log('Espacio de arma:', arma.equipmentSlotName);
+            if (arma.secondaryIcon) {
+                console.log('Icono secundario:', arma.secondaryIcon);
+            }
+            console.log('Estadísticas:', arma.stats);
+            if (arma.secondaryIcon) {
+                console.log('Breaker Type Icon:', arma.breakerTypeIcon);
+            }
+            console.log('----------------------');
         });
     } else {
         container.innerHTML = '<p>No se encontraron armas.</p>';
     }
+
+    const loadingMessage = document.getElementById('loading-message');
+    loadingMessage.style.display = 'none'; // Ocultar el mensaje de carga
 }

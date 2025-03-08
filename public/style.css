@@ -62,7 +62,7 @@ input[type="text"] {
 
 .sockets-container {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Tres columnas */
+    grid-template-columns: repeat(8, 1fr); /* Tres columnas */
     gap: 10px;
     margin-top: 10px;
 }
