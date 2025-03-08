@@ -37,6 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
     nextButton.textContent = 'Siguiente';
     nextButton.disabled = true; // Deshabilitar el botón al inicio
 
+    // Crear contenedor para los botones
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+    buttonsContainer.appendChild(prevButton);
+    buttonsContainer.appendChild(nextButton);
+
     // Lógica de búsqueda y paginación
     searchInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
@@ -76,8 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Limpiar y añadir los botones antes de los resultados
         armasContainer.innerHTML = ''; // Limpiar el contenedor antes de cargar los nuevos resultados
-        armasContainer.appendChild(prevButton);
-        armasContainer.appendChild(nextButton);
+        if (totalPages > 1) {
+            armasContainer.appendChild(buttonsContainer); // Añadir botones solo si hay más de una página
+        }
 
         if (armas.length > 0) {
             armas.forEach(arma => {
@@ -96,29 +103,39 @@ document.addEventListener('DOMContentLoaded', () => {
                     <em>${arma.flavorText || 'No hay descripción'}</em><br>
                     <h4>Perks:</h4>
                     <div class="sockets-container">
-                        ${arma.sockets && arma.sockets.length > 0
-                        ? arma.sockets.map((socket, index) => {
-                            return `
+                        ${arma.sockets && arma.sockets.length > 1
+                            ? arma.sockets.slice(1, 5).map((socket, index) => { // Solo los sockets 2, 3, 4 y 5 (índices 1 a 4)
+                                return `
                                     <div class="socket">
-                                        <strong>Socket ${index + 1} - ${socket.itemTypeDisplayName || "Desconocido"}</strong>
+                                        <strong>Socket ${index + 2} - ${socket.itemTypeDisplayName || "Desconocido"}</strong>
                                         <ul>
                                             ${socket.perks.length > 0
-                                    ? socket.perks.map(perk => `
+                                                ? socket.perks.map(perk => `
                                                     <li>
                                                         ${perk.icon ? `<img src="https://www.bungie.net${perk.icon}" alt="${perk.name}" width="30">` : ''}
                                                         ${perk.name}
                                                     </li>
                                                 `).join('')
-                                    : '<li>No hay perks disponibles</li>'
-                                }
+                                                : '<li>No hay perks disponibles</li>'
+                                            }
                                         </ul>
                                     </div>
                                 `;
-                        }).join('')
-                        : '<p>No tiene sockets con perks aleatorios</p>'}
+                            }).join('')
+                            : '<p>No tiene sockets con perks aleatorios</p>'
+                        }
                     </div>
                 `;
                 armasContainer.appendChild(div);
+
+                // Mostrar toda la información en la consola
+                console.log(`Arma: ${arma.displayProperties.name}`);
+                arma.sockets.forEach((socket, index) => {
+                    console.log(`Socket ${index + 1}: ${socket.itemTypeDisplayName || "Desconocido"}`);
+                    socket.perks.forEach(perk => {
+                        console.log(`- Perk: ${perk.name} ${perk.icon ? `, Icono: ${perk.icon}` : ''}`);
+                    });
+                });
             });
         } else {
             armasContainer.innerHTML = '<p>No se encontraron armas.</p>';
@@ -130,7 +147,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
         loadingMessage.style.display = 'none'; // Ocultar el mensaje de carga
     }
-
-    // Llamada inicial para cargar las armas
-    // fetchArmas(); // Elimina esta llamada si no quieres que se muestren armas al cargar la app
 });
