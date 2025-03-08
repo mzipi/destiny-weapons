@@ -12,11 +12,10 @@ document.getElementById('search').addEventListener('keydown', (e) => {
 });
 
 async function fetchArmas(searchTerm = '') {
-    const response = await fetch(`/armas?search=${searchTerm}`);
+    const response = await fetch(`/armas?search=${encodeURIComponent(searchTerm)}`);
     const armas = await response.json();
 
     const container = document.getElementById('armas-container');
-    const loadingMessage = document.getElementById('loading-message');
     container.innerHTML = '';
 
     if (armas.length > 0) {
@@ -34,12 +33,32 @@ async function fetchArmas(searchTerm = '') {
                 </div>
                 <strong>${arma.displayProperties.name}</strong><br>
                 <em>${arma.flavorText || 'No hay descripción'}</em><br>
+                <h4>Perks:</h4>
+                <div class="sockets-container">
+                    ${arma.sockets && arma.sockets.length > 0
+                        ? arma.sockets.map(socket => `
+                            <div class="socket">
+                                <strong>${socket.itemTypeDisplayName}</strong>
+                                <ul>
+                                    ${socket.perks.length > 0
+                                        ? socket.perks.map(perk => `
+                                            <li>
+                                                ${perk.icon ? `<img src="https://www.bungie.net${perk.icon}" alt="${perk.name}" width="30">` : ''}
+                                                ${perk.name}
+                                            </li>
+                                        `).join('')
+                                        : '<li>No hay perks disponibles</li>'
+                                    }
+                                </ul>
+                            </div>
+                        `).join('')
+                        : '<p>No tiene sockets con perks aleatorios</p>'
+                    }
+                </div>
             `;
             container.appendChild(div);
         });
     } else {
         container.innerHTML = '<p>No se encontraron armas.</p>';
     }
-
-    loadingMessage.style.display = 'none';
 }

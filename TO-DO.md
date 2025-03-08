@@ -1,4 +1,4 @@
-stats
+stats.stats
 perks
 sockets
 breakerType
